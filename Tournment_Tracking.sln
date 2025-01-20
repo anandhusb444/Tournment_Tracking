@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.35431.46
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tournment_Tracking", "Tournment_Tracking\Tournment_Tracking.csproj", "{FCB35F4B-E409-443E-8D26-A12D2EA01DD8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FCB35F4B-E409-443E-8D26-A12D2EA01DD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCB35F4B-E409-443E-8D26-A12D2EA01DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCB35F4B-E409-443E-8D26-A12D2EA01DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCB35F4B-E409-443E-8D26-A12D2EA01DD8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42942B67-A972-4033-923A-4F7A678B53D5}
+	EndGlobalSection
+EndGlobal
