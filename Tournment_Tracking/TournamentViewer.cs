@@ -54,28 +54,21 @@ namespace Tournment_Tracking
 
                     JArray tournaments = (JArray)jsonObject["tournaments"];
                     MatchTeam matchTeam = new MatchTeam();
-                    for (int i = 0; i < tournaments.Count; i++)
+
+                    foreach(JObject tournament in tournaments)
                     {
-                        JObject touranment = (JObject)tournaments[i];
-
-                        if(touranment["tounrmentName"].ToString() == tournamentName)
+                        if (tournament["tournamentName"].ToString() != tournamentName)
                         {
-                            JArray enterdTeams = (JArray)touranment["enterdTeams"];
-                            countOfTeam = enterdTeams.Count;
-
-                            for (int teams = 0; teams < enterdTeams.Count; teams++)
-                            {
-                                JObject teamNames = (JObject)enterdTeams[teams];
-                                
-
-
-                            }
-
-
-
+                            continue;
                         }
 
+                        JArray enterdTeams = (JArray)tournament["enterdTeams"];
+                        countOfTeam = enterdTeams.Count;
+
+
+
                     }
+                    
                     roundOf.Items.Clear();
 
                     int round = (int)Math.Log(countOfTeam, 2);
@@ -84,13 +77,6 @@ namespace Tournment_Tracking
                     {
                         roundOf.Items.Add(k);
                     }
-
-
-
-                    
-
-
-                    
                 }
             }
             catch(Exception ex)
