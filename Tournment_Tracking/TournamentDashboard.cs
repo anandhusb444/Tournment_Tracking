@@ -38,8 +38,10 @@ private void button2_Click(object sender, EventArgs e)
         {
             try
             {
-        
-                string filePath = @"D:\jsonFile\Tournament_Tracker.json";
+
+                string file = Directory.GetCurrentDirectory();
+                string filePath = Path.Combine(file, "Tournament_Tracker.json");
+
 
                 if(File.Exists(filePath))
                 {

@@ -8,11 +8,10 @@ namespace Tournment_Tracking.Models
 {
     class MatchTeam
     {
-        public List<string> Teams { get; set; }
 
-        public MatchTeam()
-        {
-            Teams = new List<string>();
-        }
+       public string team1 { get; set; }
+       public string team2 { get; set; }
+       public int scoreTeam1 { get; set; }
+       public int scoreTeam2 { get; set; }
     }
 }
