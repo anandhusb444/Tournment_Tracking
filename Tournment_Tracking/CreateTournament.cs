@@ -22,9 +22,9 @@ namespace Tournment_Tracking
     public partial class CreateTournament : Form
     {
         Tournament tournamentData = new Tournament();
-        string tournamentName = "";
-        private string filePath = @"D:\jsonFile\Tournament_Tracker.json";
-        //private string filepath = Path.Combine(Environment.CurrentDirectory, "Tournament_Tracker");
+       
+        private string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Tournament_Tracker.json");
+        
 
         public CreateTournament()
         {

@@ -40,7 +40,13 @@ namespace Tournment_Tracking
             form = initialValue;
         }
 
-        string filePath = @"C:\Users\anand\Downloads\Tournment_Tracking\Tournment_Tracking\Tournment_Tracking\bin\Debug\Tournament_Tracker.json";
+
+
+
+
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Tournament_Tracker.json");
+            
+           
 
 
 

@@ -10,7 +10,7 @@ namespace Tournment_Tracking.Helper
 {
     class JsonHelper
     {
-        private static string filePath = @"D:\jsonFile\Tournament_Tracker.json";
+        private static string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Tournament_Tracker.json");
 
        
 
