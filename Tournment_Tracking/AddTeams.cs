@@ -82,13 +82,30 @@ namespace Tournment_Tracking
                         JArray enterdTeams = (JArray)tournament["enterdTeams"];
                         JObject existingTeam = enterdTeams.FirstOrDefault(team => team["teamName"].ToString() == teamData.teamName) as JObject;
 
+                        JObject existingTeamIsNullorEmpty = enterdTeams.FirstOrDefault(teams => string.IsNullOrEmpty(teams["teamName"].ToString())) as JObject;
+
                         if (existingTeam != null)
                         {
                             AddOrUpdateTeamMember((JArray)existingTeam["teamMember"]);
                         }
+                        else if(existingTeamIsNullorEmpty != null)
+                        {
+                            existingTeamIsNullorEmpty["teamName"] = teamData.teamName;
+                            JArray teamMembers = (JArray)existingTeamIsNullorEmpty["teamMember"];
+
+                            foreach(JObject team in teamMembers)
+                            {
+                                team["firstName"] = personData.firstName;
+                                team["lastName"] = personData.lastName;
+                                team["email"] = personData.email;
+                                team["phone"] = personData.phone;
+                            }
+
+
+                        }
                         else
                         {
-                            // Create a new team
+
                             JObject newTeam = new JObject
                             {
                                 ["teamName"] = teamData.teamName,
@@ -120,20 +137,21 @@ namespace Tournment_Tracking
 
         private void AddOrUpdateTeamMember(JArray teamMembers)
         {
-            // Check if the team member already exists
+            
             var existingMember = teamMembers.FirstOrDefault(member =>
                 member["email"].ToString() == personData.email);
 
             if (existingMember != null)
             {
-                // Update existing member details
+
                 existingMember["firstName"] = personData.firstName;
                 existingMember["lastName"] = personData.lastName;
                 existingMember["phone"] = personData.phone;
+                existingMember["email"] = personData.email;
             }
             else
             {
-                // Add a new team member
+               
                 JObject newMember = new JObject
                 {
                     ["firstName"] = personData.firstName,

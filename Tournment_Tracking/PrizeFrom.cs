@@ -34,7 +34,7 @@ namespace Tournment_Tracking
         {
             try
             {
-                string filePath = @"D:\jsonFile\Tournament_Tracker.json";
+                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Tournament_Tracker.json");
                // string filePath = Path.Combine(Environment.CurrentDirectory, "Tournament_Tracker");
 
                 if (File.Exists(filePath))
