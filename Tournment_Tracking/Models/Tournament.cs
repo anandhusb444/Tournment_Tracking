@@ -11,5 +11,7 @@ namespace Tournment_Tracking.Models
         public string tournamentName { get; set; }
         public decimal entryfee { get; set; }
         public List<Teams> enterdTeams { get; set; }
+
+        public List<Round> rounds { get; set; }
     }
 }

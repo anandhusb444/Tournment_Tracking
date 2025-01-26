@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using Tournment_Tracking.Models;
-using System.Text.RegularExpressions;
-
 
 namespace Tournment_Tracking
 {
-
     public partial class TournamentViewer : Form
     {
-        H1Tournament form;
-        string tournamentName;
+        private H1Tournament form;
+        private string tournamentName;
+        private string filePathForMatch = Path.Combine(Directory.GetCurrentDirectory(), "MatchRound.json");
+        private string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Tournament_Tracker.json");
+
         public TournamentViewer()
         {
             InitializeComponent();
@@ -32,205 +27,179 @@ namespace Tournment_Tracking
             form = initialValue;
             tournamentName = form.GetTournamentName;
             label7.Text = tournamentName;
-            ShowTeamOnTextBox();
 
-
+            PopulateRoundComboBox(); // Populate rounds when the form is loaded
         }
-        string filePathForMatch = Path.Combine(Directory.GetCurrentDirectory(), "MatchRound.json");
-        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Tournament_Tracker.json");
 
-
-        private void comboBox1_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Populates the ComboBox with the list of rounds based on the number of entered teams.
+        /// </summary>
+        private void PopulateRoundComboBox()
         {
             try
             {
-                Random random = new Random();
                 List<string> listOfTeams = new List<string>();
 
                 if (File.Exists(filePath))
                 {
                     string data = File.ReadAllText(filePath);
-                    string matchData = File.ReadAllText(filePathForMatch);
-                    //JObject matchJsonObject = JObject.Parse(matchData);
                     JObject jsonObject = JObject.Parse(data);
 
                     JArray tournaments = (JArray)jsonObject["tournaments"];
+
                     foreach (JObject tournament in tournaments)
                     {
                         if (tournament["tounrmentName"].ToString() != tournamentName)
                         {
                             continue;
                         }
+
                         JArray enteredTeams = (JArray)tournament["enterdTeams"];
                         foreach (JObject team in enteredTeams)
                         {
                             listOfTeams.Add(team["teamName"].ToString());
                         }
                     }
+
                     roundOf.Items.Clear();
-                    int roundCount = (int)Math.Log(listOfTeams.Count, 2);
+                    int roundCount = (int)Math.Ceiling(Math.Log(listOfTeams.Count, 2));
                     for (int k = 1; k <= roundCount; k++)
                     {
-                        roundOf.Items.Add($"Round {k}");
-                    }
-
-                    HashSet<int> UsedInex = new HashSet<int>();
-                    JArray matchesArray = new JArray();
-                    int count = 1;
-                    JObject matchJsonData = JObject.Parse(matchData);
-                    JArray matchTournament = (JArray)matchJsonData["tournaments"];
-
-                    JObject isTournamentExist = matchTournament.FirstOrDefault(team => team["tounrmentName"].ToString() == tournamentName) as JObject;
-                    while (UsedInex.Count < listOfTeams.Count)
-                    {
-                        List<string> matchPair = new List<string>();
-
-                        while (matchPair.Count < 2)
-                        {
-                            int randomNumber = random.Next(listOfTeams.Count);
-                            if (!UsedInex.Contains(randomNumber))
-                            {
-                                matchPair.Add(listOfTeams[randomNumber]);
-                                UsedInex.Add(randomNumber);
-                            }
-                        }
-
-                        JObject matchrounds = new JObject
-                        {
-                            ["tournaments"] = new JArray
-                            {
-                                new JObject
-                                {
-                                    ["tournamentName"] = tournamentName,
-                                    ["rounds"] = new JArray
-                                {
-                                    new JObject
-                                    {
-                                        ["roundNumber"] = count,
-                                        ["matches"] = new JArray
-                                        {
-                                            new JObject
-                                            {
-                                                 ["team1"] = matchPair[0],
-                                                 ["team2"] = matchPair[1],
-                                                 ["winner"] = null,
-                                                 ["score"] = new JObject
-                                                 {
-                                                    ["scoreTeam1"] = null,
-                                                    ["scoreTeam2"] = null,
-                                                 }
-                                            }
-
-                                        }
-                                    }
-                                }
-                                }
-                            }
-
-                        };
-
-                        File.WriteAllText(filePathForMatch, matchrounds.ToString());
-                        ShowTeamOnTextBox();//calling the showTeamTextBox to the team vs
-
+                        roundOf.Items.Add(k);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"Error populating ComboBox: {ex.Message}");
             }
         }
 
-
-        private void ShowTeamOnTextBox()
+        /// <summary>
+        /// Handles the selection of a round from the ComboBox and processes the matches.
+        /// </summary>
+        private void roundOf_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
             {
+                if (roundOf.SelectedItem != null)
+                {
+                    int selectedRound = int.Parse(roundOf.SelectedItem.ToString());
+                    GetMatchRounds(selectedRound);
+                }
+                else
+                {
+                    Console.WriteLine("No round selected.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in roundOf_SelectedIndexChanged: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Generates and stores match rounds based on the selected round.
+        /// </summary>
+        private void GetMatchRounds(int selectround)
+        {
+            try
+            {
+                Random random = new Random();
+
+                // Read match data from JSON
+                JObject jsondata;
                 if (File.Exists(filePathForMatch))
                 {
-                    string teamVs = "";
-                    string data = File.ReadAllText(filePathForMatch);
+                    string matchData = File.ReadAllText(filePathForMatch);
+                    jsondata = JObject.Parse(matchData);
+                }
+                else
+                {
+                    jsondata = new JObject { ["rounds"] = new JArray() };
+                }
+
+                Tournament newTournament = new Tournament()
+                {
+                    rounds = new List<Round>()
+                };
+
+                Round round = new Round()
+                {
+                    RounndNumber = selectround,
+                    matches = new List<Models.Match>()
+                };
+
+                if (selectround == 1)
+                {
+                    string data = File.ReadAllText(filePath);
                     JObject jsonData = JObject.Parse(data);
 
-                    JArray torunamnets = (JArray)jsonData["tournaments"];
+                    JArray tournaments = (JArray)jsonData["tournaments"];
 
-                    foreach (JObject tournament in torunamnets)
+                    foreach (var tournament in tournaments)
                     {
-                        JArray rounds = (JArray)tournament["rounds"];
-
-                        foreach (JObject round in rounds)
+                        if (tournament["tounrmentName"].ToString() == tournamentName)
                         {
-                            JArray matches = (JArray)round["matches"];
+                            var listOfTeams = ((JArray)tournament["enterdTeams"])
+                                .Select(t => t["teamName"].ToString())
+                                .ToList();
 
-                            foreach (JObject match in matches)
+                            for (int i = 0; i < listOfTeams.Count - 1; i += 2)
                             {
-                                teamVs = $"{match["team1"]} VS {match["team2"]}";
+                                round.matches.Add(new Models.Match
+                                {
+                                    team1 = listOfTeams[i],
+                                    team2 = listOfTeams[i + 1],
+                                    scoreTeam1 = 0,
+                                    scoreTeam2 = 0,
+                                    winner = null
+                                });
                             }
                         }
                     }
-
-                    textBox1.AppendText(teamVs);
                 }
+
+                newTournament.rounds.Add(round);
+
+                AddTournamentToJson(jsondata, round);
+                File.WriteAllText(filePathForMatch, jsondata.ToString());
             }
             catch (Exception ex)
             {
-
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"Error in GetMatchRounds: {ex.Message}");
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Adds a round to the JSON object for match data.
+        /// </summary>
+        private void AddTournamentToJson(JObject jsonData, Round round)
         {
             try
             {
-                if (File.Exists(filePathForMatch))
+                JArray roundsArray = (JArray)jsonData["rounds"] ?? new JArray();
+
+                JObject newRound = new JObject
                 {
-                    string data = File.ReadAllText(filePathForMatch);
-                    JObject matchJsondata = JObject.Parse(data);
-
-                    JArray matchTournaments = (JArray)matchJsondata["tournaments"];
-
-                    foreach (var tournament in matchTournaments)
+                    ["RounndNumber"] = round.RounndNumber,
+                    ["matches"] = new JArray(round.matches.Select(m => new JObject
                     {
-                        JArray rounds = (JArray)tournament["rounds"];
+                        ["team1"] = m.team1,
+                        ["team2"] = m.team2,
+                        ["scoreTeam1"] = m.scoreTeam1,
+                        ["scoreTeam2"] = m.scoreTeam2,
+                        ["winner"] = m.winner
+                    }))
+                };
 
-                        foreach (JObject round in rounds)
-                        {
-                            JArray matches = (JArray)round["matches"];
-
-                            foreach (JObject match in matches)
-                            {
-                                JObject score = (JObject)match["score"];
-
-                                int score1 = int.Parse(textBox2.Text);
-                                int score2 = int.Parse(textBox3.Text);
-
-
-                                score["scoreTeam1"] = textBox2.Text;
-                                score["scoreTeam2"] = textBox3.Text;
-
-                                if (score1 > score2)
-                                {
-                                    match["winner"] = match["team1"];
-                                }
-                                else
-                                {
-                                    match["winner"] = match["team2"];
-                                }
-
-
-                            }
-                        }
-                    }
-                    File.WriteAllText(filePathForMatch, matchJsondata.ToString());
-                    MessageBox.Show("Score has been added");
-                }
+                roundsArray.Add(newRound);
+                jsonData["rounds"] = roundsArray;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"Error in AddTournamentToJson: {ex.Message}");
             }
         }
     }
 }
-

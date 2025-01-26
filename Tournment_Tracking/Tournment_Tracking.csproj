@@ -63,9 +63,10 @@
       <DependentUpon>CreateTournament.cs</DependentUpon>
     </Compile>
     <Compile Include="Helper\JsonHelper.cs" />
-    <Compile Include="Models\MatchTeam.cs" />
+    <Compile Include="Models\Match.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Prize.cs" />
+    <Compile Include="Models\Round.cs" />
     <Compile Include="Models\Teams.cs" />
     <Compile Include="Models\Tournament.cs" />
     <Compile Include="PrizeFrom.cs">
