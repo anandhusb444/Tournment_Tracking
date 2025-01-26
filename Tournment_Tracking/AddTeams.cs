@@ -56,10 +56,10 @@ namespace Tournment_Tracking
             try
             {
                 teamData.teamName = teamNameBox.Text;
-                personData.firstName = textBox2.Text;
-                personData.lastName = textBox3.Text;
-                personData.email = textBox4.Text;
-                personData.phone = textBox5.Text;
+                //personData.firstName = textBox2.Text;
+                //personData.lastName = textBox3.Text;
+                //personData.email = textBox4.Text;
+                //personData.phone = textBox5.Text;
 
 
                 if (File.Exists(filePath))

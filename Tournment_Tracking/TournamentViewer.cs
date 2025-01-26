@@ -162,7 +162,7 @@ namespace Tournment_Tracking
 
                 newTournament.rounds.Add(round);
 
-                AddTournamentToJson(jsondata, round);
+                AddRoundToTournamentJson(jsondata, round);
                 File.WriteAllText(filePathForMatch, jsondata.ToString());
             }
             catch (Exception ex)
@@ -174,12 +174,36 @@ namespace Tournment_Tracking
         /// <summary>
         /// Adds a round to the JSON object for match data.
         /// </summary>
-        private void AddTournamentToJson(JObject jsonData, Round round)
+        private void AddRoundToTournamentJson(JObject jsonData, Round round)
         {
             try
             {
-                JArray roundsArray = (JArray)jsonData["rounds"] ?? new JArray();
+                // Ensure the "tournaments" array exists
+                JArray tournaments = (JArray)jsonData["tournaments"];
+                if (tournaments == null || tournaments.Count == 0)
+                {
+                    tournaments = new JArray();
+                    jsonData["tournaments"] = tournaments;
+                }
 
+                JObject targetTournament = (JObject)tournaments.FirstOrDefault(t =>
+                                     (string)t["tournamentName"] == tournamentName);
+
+                if (targetTournament == null)
+                {
+                    // If the tournament doesn't exist, create a new one
+                    targetTournament = new JObject
+                    {
+                        ["tournamentName"] = tournamentName,
+                        ["rounds"] = new JArray()
+                    };
+                    tournaments.Add(targetTournament);
+                }
+
+                // Get the existing "rounds" array or create a new one
+                JArray roundsArray = (JArray)targetTournament["rounds"] ?? new JArray();
+
+                // Create the new round JSON object
                 JObject newRound = new JObject
                 {
                     ["RounndNumber"] = round.RounndNumber,
@@ -193,13 +217,20 @@ namespace Tournment_Tracking
                     }))
                 };
 
+                // Add the new round to the rounds array
                 roundsArray.Add(newRound);
-                jsonData["rounds"] = roundsArray;
+
+                // Update the "rounds" property in the target tournament
+                targetTournament["rounds"] = roundsArray;
+
+                // Write the updated JSON back to the file
+                File.WriteAllText(filePath, jsonData.ToString());
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in AddTournamentToJson: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
+
     }
 }
